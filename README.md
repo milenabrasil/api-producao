@@ -1,8 +1,9 @@
-# API de Estoque
+# API de Produção
 
-API REST para gerenciamento de produtos de uma loja, com autenticação de funcionários.
+API REST completa com boas práticas de produção, variáveis de ambiente e tratamento global de erros.
 
 ## Tecnologias
+
 - Node.js
 - Express
 - MySQL
@@ -11,54 +12,59 @@ API REST para gerenciamento de produtos de uma loja, com autenticação de funci
 - Dotenv
 
 ## Funcionalidades
-- Cadastro e login de funcionários
+
+- Cadastro e login de usuários
 - Senha criptografada com Bcrypt
 - Autenticação com JWT
-- CRUD completo de produtos
-- Qualquer pessoa pode visualizar produtos
-- Apenas funcionários autenticados podem criar, editar e deletar produtos
+- CRUD completo de tarefas por usuário
+- Variáveis de ambiente com dotenv
 - Tratamento global de erros
+- Rotas protegidas por autenticação
 
 ## Como rodar
 
 ### Instalação
+
 ```bash
 npm install
 ```
 
 ### Configurar o .env
+
 Crie um arquivo `.env` na raiz do projeto:
+
 ```
 PORT=3000
 JWT_SECRET=seu_segredo_aqui
 DB_HOST=localhost
 DB_USER=root
 DB_PASSWORD=
-DB_NAME=estoque
+DB_NAME=api_producao
 ```
 
 ### Configurar o banco
+
 ```sql
-CREATE DATABASE estoque;
-USE estoque;
-CREATE TABLE funcionario (
+CREATE DATABASE api_producao;
+USE api_producao;
+CREATE TABLE usuarios (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     senha VARCHAR(255) NOT NULL
 );
-CREATE TABLE produto (
-    id_produto INT AUTO_INCREMENT PRIMARY KEY,
-    nome VARCHAR(255) NOT NULL,
+CREATE TABLE tarefas (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    titulo VARCHAR(255) NOT NULL,
     descricao TEXT,
-    preco DECIMAL(10,2) NOT NULL,
-    quantidade INT NOT NULL,
-    funcionario_id INT,
-    FOREIGN KEY (funcionario_id) REFERENCES funcionario(id)
+    concluida BOOLEAN DEFAULT FALSE,
+    usuario_id INT NOT NULL,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
 );
 ```
 
 ### Rodar o servidor
+
 ```bash
 node server.js
 ```
@@ -66,27 +72,24 @@ node server.js
 ## Rotas
 
 ### Autenticação
-| Método | Rota | Descrição | Auth |
-|--------|------|-----------|------|
-| POST | /cadastro | Cadastrar funcionário | ❌ |
-| POST | /login | Fazer login | ❌ |
 
-### Funcionários
-| Método | Rota | Descrição | Auth |
-|--------|------|-----------|------|
-| PUT | /funcionario/:id | Atualizar funcionário | ✅ |
-| DELETE | /funcionario/:id | Deletar funcionário | ✅ |
+| Método | Rota      | Descrição         | Auth |
+| ------ | --------- | ----------------- | ---- |
+| POST   | /cadastro | Cadastrar usuário | ❌   |
+| POST   | /login    | Fazer login       | ❌   |
 
-### Produtos
-| Método | Rota | Descrição | Auth |
-|--------|------|-----------|------|
-| GET | /produto | Listar todos os produtos | ❌ |
-| GET | /produto/:id | Buscar produto por id | ❌ |
-| POST | /produto | Criar produto | ✅ |
-| PUT | /produto/:id | Atualizar produto | ✅ |
-| DELETE | /produto/:id | Deletar produto | ✅ |
+### Tarefas
+
+| Método | Rota         | Descrição                 | Auth |
+| ------ | ------------ | ------------------------- | ---- |
+| GET    | /tarefas     | Listar tarefas do usuário | ✅   |
+| GET    | /tarefas/:id | Buscar tarefa por id      | ✅   |
+| POST   | /tarefas     | Criar tarefa              | ✅   |
+| PUT    | /tarefas/:id | Atualizar tarefa          | ✅   |
+| DELETE | /tarefas/:id | Deletar tarefa            | ✅   |
 
 ## Como autenticar
+
 ```
 Authorization: Bearer SEU_TOKEN_AQUI
 ```
